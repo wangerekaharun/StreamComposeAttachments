@@ -1,4 +1,4 @@
-package io.getstream.streamcomposeattachements
+package io.getstream.streamcomposeattachments
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text

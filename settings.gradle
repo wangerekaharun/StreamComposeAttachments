@@ -6,5 +6,5 @@ dependencyResolutionManagement {
         maven { url "https://jitpack.io" }
     }
 }
-rootProject.name = "StreamComposeAttachements"
+rootProject.name = "StreamComposeAttachments"
 include ':app'

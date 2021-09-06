@@ -1,10 +1,8 @@
-package io.getstream.streamcomposeattachements
+package io.getstream.streamcomposeattachments
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -12,19 +10,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.logger.ChatLogLevel
-import io.getstream.chat.android.client.models.Attachment
-import io.getstream.chat.android.client.models.Message
 import io.getstream.chat.android.client.models.User
 import io.getstream.chat.android.compose.ui.attachments.*
 import io.getstream.chat.android.compose.ui.channel.ChannelsScreen
-import io.getstream.chat.android.compose.ui.theme.AttachmentFactory
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
-import io.getstream.chat.android.compose.ui.theme.StreamAttachmentFactories
-import io.getstream.chat.android.compose.ui.theme.StreamAttachmentFactories.FileAttachmentFactory
-import io.getstream.chat.android.compose.ui.theme.StreamAttachmentFactories.ImageAttachmentFactory
-import io.getstream.chat.android.compose.ui.theme.StreamAttachmentFactories.LinkAttachmentFactory
 import io.getstream.chat.android.livedata.ChatDomain
-import io.getstream.streamcomposeattachements.ui.theme.StreamComposeAttachementsTheme
+import io.getstream.streamcomposeattachments.ui.theme.StreamComposeAttachementsTheme
 
 class MainActivity : ComponentActivity() {
     public val defaultFactories: List<AttachmentFactory> = listOf(

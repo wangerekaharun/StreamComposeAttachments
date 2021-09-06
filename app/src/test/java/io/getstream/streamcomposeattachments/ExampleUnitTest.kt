@@ -1,4 +1,4 @@
-package io.getstream.streamcomposeattachements
+package io.getstream.streamcomposeattachments
 
 import org.junit.Test
 

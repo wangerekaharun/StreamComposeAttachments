@@ -1,4 +1,4 @@
-package io.getstream.streamcomposeattachements.ui.theme
+package io.getstream.streamcomposeattachments.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
