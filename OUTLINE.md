@@ -5,5 +5,5 @@
 - Creating Your Own Attachment Factory
   - Custom Password Attachment
   - Custom Audio Attachment
-- Previewing Custom Attachements
+- Previewing Custom Attachments
 - Conclusion
