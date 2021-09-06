@@ -1,9 +1,9 @@
-Introduction
-Attachment Factory
+- Introduction 
+- Attachment Factory
   - Introduction to `AttachmentFactory`
   - Examples of Default `AttachmentFactory`
-Creating Your Own Attachment Factory
+- Creating Your Own Attachment Factory
   - Custom Password Attachment
   - Custom Audio Attachment
-Previewing Custom Attachements
-Conclusion
+- Previewing Custom Attachements
+- Conclusion
