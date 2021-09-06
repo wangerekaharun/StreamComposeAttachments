@@ -3,10 +3,15 @@ package io.getstream.streamcomposeattachements
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.client.models.Attachment
+import io.getstream.chat.android.client.models.Message
 import io.getstream.chat.android.compose.ui.messages.MessagesScreen
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
+import io.getstream.chat.android.livedata.ChatDomain
 
 class MessagesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,6 +22,25 @@ class MessagesActivity : AppCompatActivity() {
         if (channelId == null) {
             finish()
             return
+        }
+
+        val attachment = Attachment(
+            type = "paword",
+            extraData = mutableMapOf("password" to "12345"),
+        )
+        val message = Message(
+            cid = channelId,
+            text = "Password",
+            attachments = mutableListOf(attachment),
+        )
+
+        ChatDomain.instance().sendMessage(message = message).enqueue {result ->
+            if (result.isSuccess) {
+                Log.d("Password Attachment Sent Success",result.toString())
+            } else {
+                Log.d("Password Attachment Sent",result.error().message.toString())
+            }
+
         }
 
         setContent {
