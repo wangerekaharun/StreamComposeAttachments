@@ -1,9 +1,10 @@
-package io.getstream.streamcomposeattachments
+package io.getstream.streamcomposeattachments.activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.Text
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -14,15 +15,26 @@ import io.getstream.chat.android.client.models.User
 import io.getstream.chat.android.compose.ui.attachments.*
 import io.getstream.chat.android.compose.ui.channel.ChannelsScreen
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
+import io.getstream.chat.android.core.ExperimentalStreamChatApi
 import io.getstream.chat.android.livedata.ChatDomain
-import io.getstream.streamcomposeattachments.ui.theme.StreamComposeAttachementsTheme
+import io.getstream.streamcomposeattachments.R
+import io.getstream.streamcomposeattachments.activities.CustomMessageScreen
+import io.getstream.streamcomposeattachments.customfactories.AudioAttachmentView
+import io.getstream.streamcomposeattachments.customfactories.PasswordAttachmentView
 
-class MainActivity : ComponentActivity() {
-    public val defaultFactories: List<AttachmentFactory> = listOf(
-        LinkAttachmentFactory(),
-        GiphyAttachmentFactory(),
-        ImageAttachmentFactory(),
-        FileAttachmentFactory()
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
+@ExperimentalStreamChatApi
+class ChannelsScreen : ComponentActivity() {
+    private val customAttachmentFactories: List<AttachmentFactory> = listOf(
+        AttachmentFactory(
+            canHandle = { attachments -> attachments.any { it.type == "audio" } },
+            content = @Composable { AudioAttachmentView() }
+        ),
+        AttachmentFactory(
+            canHandle = { attachments -> attachments.any { it.type == "password" } },
+            content = @Composable { PasswordAttachmentView(it) }
+        )
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +45,7 @@ class MainActivity : ComponentActivity() {
             .build()
         ChatDomain.Builder(client, applicationContext).build()
 
-        val defaultFactories = StreamAttachmentFactories.defaultFactories
+        val defaultFactories = StreamAttachmentFactories.defaultFactories()
 
         val user = User(
             id = "tutorial-droid",
@@ -49,7 +61,7 @@ class MainActivity : ComponentActivity() {
         ).enqueue()
 
         setContent {
-            ChatTheme(attachmentFactories = defaultFactories + passwordFactory) {
+            ChatTheme(attachmentFactories =  defaultFactories + customAttachmentFactories) {
                 ChannelsList {
                     finish()
                 }
@@ -58,6 +70,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 @Composable
 fun ChannelsList(action: () -> Unit) {
     val context = LocalContext.current
@@ -65,21 +79,8 @@ fun ChannelsList(action: () -> Unit) {
     ChannelsScreen(
         title = stringResource(id = R.string.app_name),
         onItemClick = { channel ->
-            context.startActivity(MessagesActivity.getIntent(context, channel.cid))
+            context.startActivity(CustomMessageScreen.getIntent(context, channel.cid))
         },
         onBackPressed = { action.invoke() }
     )
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    StreamComposeAttachementsTheme {
-        Greeting("Android")
-    }
 }

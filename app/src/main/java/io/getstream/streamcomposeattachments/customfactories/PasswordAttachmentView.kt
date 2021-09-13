@@ -1,4 +1,4 @@
-package io.getstream.streamcomposeattachments
+package io.getstream.streamcomposeattachments.customfactories
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
@@ -6,12 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import io.getstream.chat.android.compose.state.messages.attachments.AttachmentState
+import io.getstream.chat.android.compose.ui.attachments.AttachmentFactory
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
 
 @Composable
-fun PasswordAttachmentFactory(attachmentState: AttachmentState) {
+fun PasswordAttachmentView(attachmentState: AttachmentState) {
     Text(
-        text = "Password",
+        text = "Custom Password view",
         modifier = Modifier.fillMaxWidth()
     )
 
@@ -19,7 +20,7 @@ fun PasswordAttachmentFactory(attachmentState: AttachmentState) {
 
 @Preview
 @Composable
-fun PasswordAttachmentFactoryPreview() {
+fun PasswordAttachmentViewPreview() {
     ChatTheme {
 
     }

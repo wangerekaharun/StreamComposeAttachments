@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">StreamComposeAttachments</string>
+    <string name="text_messages_label">Messages</string>
+    <string name="text_input_label">Type Something...</string>
 </resources>
