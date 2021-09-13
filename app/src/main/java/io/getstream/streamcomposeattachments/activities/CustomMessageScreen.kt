@@ -1,12 +1,19 @@
 package io.getstream.streamcomposeattachments.activities
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -44,6 +51,7 @@ import io.getstream.chat.android.compose.viewmodel.messages.MessageComposerViewM
 import io.getstream.chat.android.compose.viewmodel.messages.MessageListViewModel
 import io.getstream.chat.android.compose.viewmodel.messages.MessagesViewModelFactory
 import io.getstream.chat.android.offline.ChatDomain
+import java.io.IOException
 
 
 @ExperimentalFoundationApi
@@ -65,11 +73,24 @@ class CustomMessageScreen : AppCompatActivity() {
     private val listViewModel by viewModels<MessageListViewModel>(factoryProducer = { factory })
     private val attachmentsPickerViewModel by viewModels<AttachmentsPickerViewModel>(factoryProducer = { factory })
     private val composerViewModel by viewModels<MessageComposerViewModel>(factoryProducer = { factory })
+    private var output: String? = null
+    private var mediaRecorder: MediaRecorder? = null
+    private var state: Boolean = false
+    private var recordingStopped: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         channelId = intent.getStringExtra(KEY_CHANNEL_ID) ?: return
+        mediaRecorder = MediaRecorder()
+        output = Environment.getExternalStorageDirectory().absolutePath + "/recording.mp3"
+
+        mediaRecorder?.apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setOutputFile(output)
+        }
 
         setContent {
             ChatTheme {
@@ -78,6 +99,43 @@ class CustomMessageScreen : AppCompatActivity() {
         }
     }
 
+    private fun startRecording() {
+        try {
+            mediaRecorder?.prepare()
+            mediaRecorder?.start()
+            state = true
+            Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun stopRecording(){
+        if(state){
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+            state = false
+        }else{
+            Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val requestMultiplePermissions =     registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        permissions.entries.forEach {
+            Log.e("DEBUG", "${it.key} = ${it.value}")
+        }
+    }
+
+    private fun requestAudioPermissions() {
+        requestMultiplePermissions.launch(
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+
+            )
+        )
+    }
 
     @Composable
     fun CustomUi(action: () -> Unit) {

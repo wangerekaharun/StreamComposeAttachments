@@ -8,7 +8,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.logger.ChatLogLevel
 import io.getstream.chat.android.client.models.User
@@ -18,9 +17,8 @@ import io.getstream.chat.android.compose.ui.theme.ChatTheme
 import io.getstream.chat.android.core.ExperimentalStreamChatApi
 import io.getstream.chat.android.livedata.ChatDomain
 import io.getstream.streamcomposeattachments.R
-import io.getstream.streamcomposeattachments.activities.CustomMessageScreen
-import io.getstream.streamcomposeattachments.customfactories.AudioAttachmentView
-import io.getstream.streamcomposeattachments.customfactories.PasswordAttachmentView
+import io.getstream.streamcomposeattachments.customattachmentviews.AudioAttachmentView
+import io.getstream.streamcomposeattachments.customattachmentviews.PasswordAttachmentView
 
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
