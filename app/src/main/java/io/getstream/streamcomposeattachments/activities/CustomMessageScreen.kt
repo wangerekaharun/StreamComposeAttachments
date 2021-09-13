@@ -122,7 +122,6 @@ class CustomMessageScreen : AppCompatActivity() {
 
     private val requestMultiplePermissions =     registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         permissions.entries.forEach {
-            Log.e("DEBUG", "${it.key} = ${it.value}")
         }
     }
 
@@ -244,9 +243,7 @@ class CustomMessageScreen : AppCompatActivity() {
                         )
 
                         ChatDomain.instance().sendMessage(message = message).enqueue { result ->
-                            Log.d("Error", result.data().user.id)
                             if (result.isSuccess) {
-                                Toast.makeText(applicationContext,"send",Toast.LENGTH_SHORT).show()
                                 Log.d("Password Attachment Sent Success",result.data().attachments.toString())
                             } else {
                                 Log.d("Password Attachment Sent",result.error().message.toString())
