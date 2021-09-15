@@ -22,7 +22,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import io.getstream.chat.android.compose.state.messages.attachments.AttachmentState
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
-import io.getstream.streamcomposeattachments.ui.theme.Background
 
 @Composable
 fun PasswordAttachmentView(attachmentState: AttachmentState) {
