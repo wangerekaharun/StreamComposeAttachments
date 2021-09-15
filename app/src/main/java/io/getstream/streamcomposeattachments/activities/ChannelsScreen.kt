@@ -3,8 +3,6 @@ package io.getstream.streamcomposeattachments.activities
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -18,8 +16,6 @@ import io.getstream.chat.android.core.ExperimentalStreamChatApi
 import io.getstream.chat.android.livedata.ChatDomain
 import io.getstream.streamcomposeattachments.R
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
 @ExperimentalStreamChatApi
 class ChannelsScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,8 +52,6 @@ class ChannelsScreen : ComponentActivity() {
 }
 
 @ExperimentalStreamChatApi
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
 @Composable
 fun ChannelsList(action: () -> Unit) {
     val context = LocalContext.current

@@ -13,7 +13,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -49,8 +48,6 @@ import java.io.IOException
 
 
 @ExperimentalStreamChatApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
 class CustomMessageScreen : AppCompatActivity() {
     private var channelId = ""
     private val factory by lazy {
