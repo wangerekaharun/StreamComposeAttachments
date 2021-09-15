@@ -2,28 +2,14 @@ package io.getstream.streamcomposeattachments.utils
 
 import android.media.MediaPlayer
 
-class RecordingUtils(private val player: MediaPlayer){
+class PlayerUtils(private var player: MediaPlayer?) {
 
     fun play() {
-        player.start()
+        player?.start()
     }
 
     fun stop() {
-        if(player.isPlaying){
-            player.stop()
-            player.reset()
-            player.release()
-        }
+        player?.release()
+        player = null
     }
-
-    val MediaPlayer.seconds:Int
-        get() {
-            return this.duration / 1000
-        }
-
-    val MediaPlayer.currentSeconds:Int
-        get() {
-            return this.currentPosition/1000
-        }
-
 }

@@ -24,17 +24,6 @@ import io.getstream.streamcomposeattachments.customattachmentviews.PasswordAttac
 @ExperimentalFoundationApi
 @ExperimentalStreamChatApi
 class ChannelsScreen : ComponentActivity() {
-    private val customAttachmentFactories: List<AttachmentFactory> = listOf(
-        AttachmentFactory(
-            canHandle = { attachments -> attachments.any { it.type == "audio" } },
-            content = @Composable { AudioAttachmentView() }
-        ),
-        AttachmentFactory(
-            canHandle = { attachments -> attachments.any { it.type == "password" } },
-            content = @Composable { PasswordAttachmentView(it) }
-        )
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -59,7 +48,7 @@ class ChannelsScreen : ComponentActivity() {
         ).enqueue()
 
         setContent {
-            ChatTheme(attachmentFactories =  defaultFactories + customAttachmentFactories) {
+            ChatTheme(attachmentFactories = defaultFactories) {
                 ChannelsList {
                     finish()
                 }
@@ -68,6 +57,7 @@ class ChannelsScreen : ComponentActivity() {
     }
 }
 
+@ExperimentalStreamChatApi
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @Composable

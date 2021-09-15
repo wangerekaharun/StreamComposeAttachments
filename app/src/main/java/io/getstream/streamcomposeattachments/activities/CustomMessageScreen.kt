@@ -1,15 +1,12 @@
 package io.getstream.streamcomposeattachments.activities
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.MediaRecorder
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -18,26 +15,19 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Attachment
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.models.Attachment
 import io.getstream.chat.android.client.models.Message
 import io.getstream.chat.android.compose.state.messages.Thread
-import io.getstream.chat.android.compose.ui.attachments.AttachmentFactory
 import io.getstream.chat.android.compose.ui.attachments.StreamAttachmentFactories
 import io.getstream.chat.android.compose.ui.messages.attachments.AttachmentsPicker
 import io.getstream.chat.android.compose.ui.messages.composer.MessageComposer
@@ -51,13 +41,14 @@ import io.getstream.chat.android.compose.viewmodel.messages.AttachmentsPickerVie
 import io.getstream.chat.android.compose.viewmodel.messages.MessageComposerViewModel
 import io.getstream.chat.android.compose.viewmodel.messages.MessageListViewModel
 import io.getstream.chat.android.compose.viewmodel.messages.MessagesViewModelFactory
+import io.getstream.chat.android.core.ExperimentalStreamChatApi
 import io.getstream.chat.android.offline.ChatDomain
 import io.getstream.streamcomposeattachments.R
-import io.getstream.streamcomposeattachments.customattachmentviews.AudioAttachmentView
-import io.getstream.streamcomposeattachments.customattachmentviews.PasswordAttachmentView
+import io.getstream.streamcomposeattachments.utils.customAttachmentFactories
 import java.io.IOException
 
 
+@ExperimentalStreamChatApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 class CustomMessageScreen : AppCompatActivity() {
@@ -79,76 +70,22 @@ class CustomMessageScreen : AppCompatActivity() {
     private val composerViewModel by viewModels<MessageComposerViewModel>(factoryProducer = { factory })
     private var output: String? = null
     private var mediaRecorder: MediaRecorder? = null
-    private var state: Boolean = false
-    private var recordingStopped: Boolean = false
-    private val customAttachmentFactories: List<AttachmentFactory> = listOf(
-        AttachmentFactory(
-            canHandle = { attachments -> attachments.any { it.type == "audio" } },
-            content = @Composable { AudioAttachmentView() }
-        ),
-        AttachmentFactory(
-            canHandle = { attachments -> attachments.any { it.type == "password" } },
-            content = @Composable { PasswordAttachmentView(it) }
-        )
-    )
+    private var isRecordingState: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         channelId = intent.getStringExtra(KEY_CHANNEL_ID) ?: return
         mediaRecorder = MediaRecorder()
-        output = Environment.getExternalStorageDirectory().absolutePath + "/recording.mp3"
+        output = this.getExternalFilesDir(null)?.absolutePath + "/audio.mp3"
 
-//        mediaRecorder?.apply {
-//            setAudioSource(MediaRecorder.AudioSource.MIC)
-//            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-//            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-//            setOutputFile(output)
-//        }
         val defaultFactories = StreamAttachmentFactories.defaultFactories()
 
         setContent {
-            ChatTheme(attachmentFactories =  customAttachmentFactories+defaultFactories) {
+            ChatTheme(attachmentFactories = customAttachmentFactories + defaultFactories) {
                 CustomUi { onBackPressed() }
             }
         }
-    }
-
-    private fun startRecording() {
-        try {
-            mediaRecorder?.prepare()
-            mediaRecorder?.start()
-            state = true
-            Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun stopRecording(){
-        if(state){
-            mediaRecorder?.stop()
-            mediaRecorder?.release()
-            state = false
-        }else{
-            Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private val requestMultiplePermissions =     registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-        permissions.entries.forEach {
-        }
-    }
-
-    private fun requestAudioPermissions() {
-        requestMultiplePermissions.launch(
-            arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-
-            )
-        )
     }
 
     @Composable
@@ -180,8 +117,7 @@ class CustomMessageScreen : AppCompatActivity() {
                         MessageList(
                             modifier = Modifier
                                 .padding(it)
-                                .background(ChatTheme.colors.appBackground)
-                            ,
+                                .background(ChatTheme.colors.appBackground),
                             viewModel = listViewModel,
                             onThreadClick = { message ->
                                 composerViewModel.setMessageMode(Thread(message))
@@ -211,7 +147,11 @@ class CustomMessageScreen : AppCompatActivity() {
 
             if (selectedMessage != null) {
                 SelectedMessageOverlay(
-                    messageOptions = defaultMessageOptions(selectedMessage, user, listViewModel.isInThread),
+                    messageOptions = defaultMessageOptions(
+                        selectedMessage,
+                        user,
+                        listViewModel.isInThread
+                    ),
                     message = selectedMessage,
                     onMessageAction = { action ->
                         composerViewModel.performMessageAction(action)
@@ -225,6 +165,7 @@ class CustomMessageScreen : AppCompatActivity() {
 
     @Composable
     fun CustomAudioComposer() {
+        var buttonState by remember { mutableStateOf(false) }
         MessageComposer(
             modifier = Modifier
                 .fillMaxWidth()
@@ -249,25 +190,10 @@ class CustomMessageScreen : AppCompatActivity() {
                             attachmentsPickerViewModel.changeAttachmentState(true)
                         }
                     )
-                    IconButton(onClick = {
-                        val attachment = Attachment(
-                            type = "password",
-                            extraData = mutableMapOf("password" to "12345"),
-                        )
-                        val message = Message(
-                            cid = channelId,
-                            text = "Password",
-                            attachments = mutableListOf(attachment),
-                        )
-
-                        ChatDomain.instance().sendMessage(message = message).enqueue { result ->
-                            if (result.isSuccess) {
-                                Log.d("Password Attachment Sent Success",result.data().attachments.toString())
-                            } else {
-                                Log.d("Password Attachment Sent",result.error().message.toString())
-                            }
-
-                        } },
+                    IconButton(
+                        onClick = {
+                            sendPasswordAttachmentMessage()
+                        },
                         modifier = Modifier
                             .width(35.dp)
                             .height(35.dp)
@@ -282,6 +208,13 @@ class CustomMessageScreen : AppCompatActivity() {
 
                     IconButton(
                         onClick = {
+                            if (!isRecordingState) {
+                                buttonState = true
+                                checkPermissions()
+                            } else {
+                                buttonState = false
+                                stopRecording()
+                            }
                         },
                         modifier = Modifier
                             .width(35.dp)
@@ -289,9 +222,11 @@ class CustomMessageScreen : AppCompatActivity() {
                             .padding(4.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Mic,
+                            imageVector = if (buttonState) {
+                                Icons.Default.Stop
+                            } else Icons.Default.Mic,
                             contentDescription = null,
-                            tint = ChatTheme.colors.textLowEmphasis,
+                            tint = if (buttonState) ChatTheme.colors.errorAccent else ChatTheme.colors.textLowEmphasis,
                         )
                     }
                 }
@@ -308,11 +243,123 @@ class CustomMessageScreen : AppCompatActivity() {
                     onValueChange = { composerViewModel.setMessageInput(it) },
                     onAttachmentRemoved = { composerViewModel.removeSelectedAttachment(it) },
                     label = {
-
-                        Text(text = getString(R.string.text_input_label))
+                        Text(
+                            text = getString(R.string.text_input_label)
+                        )
                     }
                 )
             }
+        )
+    }
+
+    private fun sendPasswordAttachmentMessage() {
+        val attachment = Attachment(
+            type = "password",
+            extraData = mutableMapOf("password" to "12345"),
+        )
+        val message = Message(
+            cid = channelId,
+            attachments = mutableListOf(attachment),
+        )
+
+        ChatDomain.instance().sendMessage(message = message).enqueue { result ->
+            if (result.isSuccess) {
+                Log.d(
+                    "Password Attachment Sent Success",
+                    result.data().attachments.toString()
+                )
+            } else {
+                Log.d(
+                    "Password Attachment Sent",
+                    result.error().message.toString()
+                )
+            }
+
+        }
+    }
+
+    private fun checkPermissions() {
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO),
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                setupMediaRecorder()
+                startRecording()
+            }
+            else -> {
+                requestAudioPermissions()
+            }
+        }
+    }
+
+    private fun setupMediaRecorder() {
+        mediaRecorder?.apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setOutputFile(output)
+        }
+    }
+
+    private fun startRecording() {
+        try {
+            mediaRecorder?.prepare()
+            mediaRecorder?.start()
+            isRecordingState = true
+            Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun stopRecording() {
+        if (isRecordingState) {
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+            mediaRecorder = null
+            isRecordingState = false
+            sendAudioAttachment()
+        } else {
+            Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun sendAudioAttachment() {
+        val attachment = Attachment(
+            type = "audio",
+            extraData = mutableMapOf("audiofile" to output.toString()),
+        )
+        val message = Message(
+            cid = channelId,
+            attachments = mutableListOf(attachment),
+        )
+
+        ChatDomain.instance().sendMessage(message = message).enqueue { result ->
+            if (result.isSuccess) {
+                Log.d("Audio Attachment Sent Success", result.data().attachments.toString())
+            } else {
+                Log.d("Audio Attachment Sent", result.error().message.toString())
+            }
+
+        }
+    }
+
+    private val requestMultiplePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach {
+                setupMediaRecorder()
+                startRecording()
+            }
+        }
+
+    private fun requestAudioPermissions() {
+        requestMultiplePermissions.launch(
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+
+                )
         )
     }
 
