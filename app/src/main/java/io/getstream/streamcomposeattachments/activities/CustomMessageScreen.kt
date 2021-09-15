@@ -20,13 +20,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Attachment
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +37,8 @@ import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.models.Attachment
 import io.getstream.chat.android.client.models.Message
 import io.getstream.chat.android.compose.state.messages.Thread
+import io.getstream.chat.android.compose.ui.attachments.AttachmentFactory
+import io.getstream.chat.android.compose.ui.attachments.StreamAttachmentFactories
 import io.getstream.chat.android.compose.ui.messages.attachments.AttachmentsPicker
 import io.getstream.chat.android.compose.ui.messages.composer.MessageComposer
 import io.getstream.chat.android.compose.ui.messages.composer.components.MessageInput
@@ -51,6 +52,9 @@ import io.getstream.chat.android.compose.viewmodel.messages.MessageComposerViewM
 import io.getstream.chat.android.compose.viewmodel.messages.MessageListViewModel
 import io.getstream.chat.android.compose.viewmodel.messages.MessagesViewModelFactory
 import io.getstream.chat.android.offline.ChatDomain
+import io.getstream.streamcomposeattachments.R
+import io.getstream.streamcomposeattachments.customattachmentviews.AudioAttachmentView
+import io.getstream.streamcomposeattachments.customattachmentviews.PasswordAttachmentView
 import java.io.IOException
 
 
@@ -77,6 +81,16 @@ class CustomMessageScreen : AppCompatActivity() {
     private var mediaRecorder: MediaRecorder? = null
     private var state: Boolean = false
     private var recordingStopped: Boolean = false
+    private val customAttachmentFactories: List<AttachmentFactory> = listOf(
+        AttachmentFactory(
+            canHandle = { attachments -> attachments.any { it.type == "audio" } },
+            content = @Composable { AudioAttachmentView() }
+        ),
+        AttachmentFactory(
+            canHandle = { attachments -> attachments.any { it.type == "password" } },
+            content = @Composable { PasswordAttachmentView(it) }
+        )
+    )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,15 +99,16 @@ class CustomMessageScreen : AppCompatActivity() {
         mediaRecorder = MediaRecorder()
         output = Environment.getExternalStorageDirectory().absolutePath + "/recording.mp3"
 
-        mediaRecorder?.apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile(output)
-        }
+//        mediaRecorder?.apply {
+//            setAudioSource(MediaRecorder.AudioSource.MIC)
+//            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+//            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+//            setOutputFile(output)
+//        }
+        val defaultFactories = StreamAttachmentFactories.defaultFactories()
 
         setContent {
-            ChatTheme {
+            ChatTheme(attachmentFactories =  customAttachmentFactories+defaultFactories) {
                 CustomUi { onBackPressed() }
             }
         }
@@ -219,7 +234,10 @@ class CustomMessageScreen : AppCompatActivity() {
                 Row {
                     IconButton(
                         modifier = Modifier
-                            .align(Alignment.CenterVertically),
+                            .align(Alignment.CenterVertically)
+                            .width(35.dp)
+                            .height(35.dp)
+                            .padding(4.dp),
                         content = {
                             Icon(
                                 imageVector = Icons.Default.Attachment,
@@ -249,11 +267,31 @@ class CustomMessageScreen : AppCompatActivity() {
                                 Log.d("Password Attachment Sent",result.error().message.toString())
                             }
 
-                        }
-                    }) {
+                        } },
+                        modifier = Modifier
+                            .width(35.dp)
+                            .height(35.dp)
+                            .padding(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Visibility,
+                            contentDescription = null,
+                            tint = ChatTheme.colors.textLowEmphasis,
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                        },
+                        modifier = Modifier
+                            .width(35.dp)
+                            .height(35.dp)
+                            .padding(4.dp)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Mic,
                             contentDescription = null,
+                            tint = ChatTheme.colors.textLowEmphasis,
                         )
                     }
                 }
@@ -271,6 +309,7 @@ class CustomMessageScreen : AppCompatActivity() {
                     onAttachmentRemoved = { composerViewModel.removeSelectedAttachment(it) },
                     label = {
 
+                        Text(text = getString(R.string.text_input_label))
                     }
                 )
             }
