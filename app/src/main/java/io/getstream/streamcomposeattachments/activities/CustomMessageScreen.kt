@@ -43,6 +43,7 @@ import io.getstream.chat.android.compose.viewmodel.messages.MessagesViewModelFac
 import io.getstream.chat.android.core.ExperimentalStreamChatApi
 import io.getstream.chat.android.offline.ChatDomain
 import io.getstream.streamcomposeattachments.R
+import io.getstream.streamcomposeattachments.ui.StateViewModel
 import io.getstream.streamcomposeattachments.utils.customAttachmentFactories
 import java.io.IOException
 
@@ -68,6 +69,7 @@ class CustomMessageScreen : AppCompatActivity() {
     private var output: String? = null
     private var mediaRecorder: MediaRecorder? = null
     private var isRecordingState: Boolean = false
+    private val stateViewModel by viewModels<StateViewModel>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +81,8 @@ class CustomMessageScreen : AppCompatActivity() {
         val defaultFactories = StreamAttachmentFactories.defaultFactories()
 
         setContent {
-            ChatTheme(attachmentFactories = customAttachmentFactories + defaultFactories) {
+            ChatTheme(
+                attachmentFactories = customAttachmentFactories + defaultFactories) {
                 CustomUi { onBackPressed() }
             }
         }
@@ -162,7 +165,7 @@ class CustomMessageScreen : AppCompatActivity() {
 
     @Composable
     fun CustomAudioComposer() {
-        var buttonState by remember { mutableStateOf(false) }
+        val buttonState by stateViewModel.isRecording.collectAsState()
         MessageComposer(
             modifier = Modifier
                 .fillMaxWidth()
@@ -205,11 +208,9 @@ class CustomMessageScreen : AppCompatActivity() {
 
                     IconButton(
                         onClick = {
-                            if (!isRecordingState) {
-                                buttonState = true
+                            if (!buttonState) {
                                 checkPermissions()
                             } else {
-                                buttonState = false
                                 stopRecording()
                             }
                         },
@@ -303,6 +304,7 @@ class CustomMessageScreen : AppCompatActivity() {
             mediaRecorder?.prepare()
             mediaRecorder?.start()
             isRecordingState = true
+            stateViewModel.updateRecordingState(true)
             Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
             e.printStackTrace()
@@ -315,6 +317,7 @@ class CustomMessageScreen : AppCompatActivity() {
             mediaRecorder?.release()
             mediaRecorder = null
             isRecordingState = false
+            stateViewModel.updateRecordingState(false)
             sendAudioAttachment()
         } else {
             Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
@@ -322,31 +325,12 @@ class CustomMessageScreen : AppCompatActivity() {
     }
 
     private fun sendAudioAttachment() {
-        val attachment = Attachment(
-            type = "audio",
-            extraData = mutableMapOf("audiofile" to output.toString()),
-        )
-        val message = Message(
-            cid = channelId,
-            attachments = mutableListOf(attachment),
-        )
-
-        ChatDomain.instance().sendMessage(message = message).enqueue { result ->
-            if (result.isSuccess) {
-                Log.d("Audio Attachment Sent Success", result.data().attachments.toString())
-            } else {
-                Log.d("Audio Attachment Sent", result.error().message.toString())
-            }
-
-        }
+        stateViewModel.sendAttachment(channelId, output.toString())
     }
 
     private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                setupMediaRecorder()
-                startRecording()
-            }
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            // Permissions Granted
         }
 
     private fun requestAudioPermissions() {
