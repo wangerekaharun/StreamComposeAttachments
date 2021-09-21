@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,19 +26,15 @@ import androidx.core.net.toUri
 import io.getstream.chat.android.compose.state.messages.attachments.AttachmentState
 import io.getstream.chat.android.compose.ui.theme.ChatTheme
 import io.getstream.streamcomposeattachments.R
-import io.getstream.streamcomposeattachments.utils.PlayerUtils
+import io.getstream.streamcomposeattachments.utils.PlayerWrapper
 
 @Composable
 fun AudioAttachmentView(attachmentState: AttachmentState) {
-    val context = LocalContext.current
     var playing by remember { mutableStateOf(false) }
-    val message = attachmentState.messageItem.message.attachments.first { it.type == "audio" }
-    val player = PlayerUtils(
-        MediaPlayer.create(
-            context,
-            message.extraData["audiofile"].toString().toUri()
-        )
-    )
+    val audioAttachment = attachmentState.messageItem.message.attachments.first { it.type == "audio" }
+    val audioUri = audioAttachment.extraData["audiofile"].toString().toUri()
+    val player = PlayerWrapper(MediaPlayer.create(LocalContext.current, audioUri))
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
@@ -45,13 +45,8 @@ fun AudioAttachmentView(attachmentState: AttachmentState) {
         val (iconButton, text) = createRefs()
         IconButton(
             onClick = {
-                if (!playing) {
-                    playing = true
-                    player.play()
-                } else {
-                    playing = false
-                    player.stop()
-                }
+                playing = !playing
+                if (playing) player.play() else player.stop()
             },
             modifier = Modifier
                 .width(50.dp)
@@ -62,12 +57,16 @@ fun AudioAttachmentView(attachmentState: AttachmentState) {
                 }
         ) {
             Image(
-                painter = if (playing) painterResource(R.drawable.ic_baseline_stop_circle_24)
-                else painterResource(R.drawable.ic_baseline_play_circle_filled_24),
+                painter = painterResource(
+                    when (playing) {
+                        true -> R.drawable.ic_baseline_stop_circle_24
+                        false -> R.drawable.ic_baseline_play_circle_filled_24
+                    }
+                ),
                 contentDescription = "Play Icon",
             )
         }
-        val fileName = message.extraData["audiofile"].toString().toUri().lastPathSegment ?: ""
+        val fileName = audioUri.lastPathSegment ?: ""
         Text(
             text = fileName,
             fontSize = 16.sp,
@@ -79,5 +78,4 @@ fun AudioAttachmentView(attachmentState: AttachmentState) {
                 }
         )
     }
-
 }

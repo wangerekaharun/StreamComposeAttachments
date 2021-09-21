@@ -28,11 +28,10 @@ class StateViewModel : ViewModel() {
 
         ChatDomain.instance().sendMessage(message = message).enqueue { result ->
             if (result.isSuccess) {
-                Log.d("Audio Attachment Sent Success", result.data().attachments.toString())
+                Log.d("AUDIO_ATTACHMENT_OK", result.data().attachments.toString())
             } else {
-                Log.d("Audio Attachment Sent", result.error().message.toString())
+                Log.d("AUDIO_ATTACHMENT_ERR", result.error().message.toString())
             }
-
         }
     }
 }

@@ -26,8 +26,6 @@ class ChannelsScreen : ComponentActivity() {
             .build()
         ChatDomain.Builder(client, applicationContext).build()
 
-        val defaultFactories = StreamAttachmentFactories.defaultFactories()
-
         val user = User(
             id = "tutorial-droid",
             extraData = mutableMapOf(
@@ -42,10 +40,8 @@ class ChannelsScreen : ComponentActivity() {
         ).enqueue()
 
         setContent {
-            ChatTheme(attachmentFactories = defaultFactories) {
-                ChannelsList {
-                    finish()
-                }
+            ChatTheme {
+                ChannelsList(onBackPressed = this::finish)
             }
         }
     }
@@ -53,7 +49,7 @@ class ChannelsScreen : ComponentActivity() {
 
 @ExperimentalStreamChatApi
 @Composable
-fun ChannelsList(action: () -> Unit) {
+fun ChannelsList(onBackPressed: () -> Unit) {
     val context = LocalContext.current
 
     ChannelsScreen(
@@ -61,6 +57,6 @@ fun ChannelsList(action: () -> Unit) {
         onItemClick = { channel ->
             context.startActivity(CustomMessageScreen.getIntent(context, channel.cid))
         },
-        onBackPressed = { action.invoke() }
+        onBackPressed = { onBackPressed.invoke() }
     )
 }
