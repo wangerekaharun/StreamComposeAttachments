@@ -12,7 +12,11 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,7 +30,7 @@ import io.getstream.chat.android.compose.ui.theme.ChatTheme
 @Composable
 fun PasswordAttachmentView(attachmentState: AttachmentState) {
     var showPassword by remember { mutableStateOf(false) }
-    val message = attachmentState.messageItem.message.attachments.first { it.type == "password" }
+    val passwordAttachment = attachmentState.messageItem.message.attachments.first { it.type == "password" }
     Row(
         modifier = Modifier
             .padding(6.dp)
@@ -34,10 +38,8 @@ fun PasswordAttachmentView(attachmentState: AttachmentState) {
             .background(Color.White)
     ) {
         OutlinedTextField(
-            value = message.extraData["password"].toString(),
-            onValueChange = {
-
-            },
+            value = passwordAttachment.extraData["password"].toString(),
+            onValueChange = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(6.dp)
@@ -46,18 +48,12 @@ fun PasswordAttachmentView(attachmentState: AttachmentState) {
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             trailingIcon = {
-                val image = if (showPassword)
-                    Icons.Filled.Visibility
-                else Icons.Filled.VisibilityOff
+                val image = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
 
-                IconButton(onClick = {
-                    showPassword = !showPassword
-                }) {
+                IconButton(onClick = { showPassword = !showPassword }) {
                     Icon(imageVector = image, null)
                 }
             }
-
         )
     }
-
 }
