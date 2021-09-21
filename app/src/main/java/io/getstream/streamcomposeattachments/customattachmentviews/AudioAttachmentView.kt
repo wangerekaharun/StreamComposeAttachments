@@ -27,13 +27,17 @@ import io.getstream.streamcomposeattachments.utils.PlayerWrapper
 
 @Composable
 fun AudioAttachmentView(attachmentState: AttachmentState) {
+    // 1
     var playing by remember { mutableStateOf(false) }
+    // 2
     val audioAttachment = attachmentState.messageItem.message.attachments.first { it.type == "audio" }
+    // 3
     val player = PlayerWrapper(
         player = MediaPlayer.create(LocalContext.current, Uri.parse(audioAttachment.url)),
         onStop = { playing = false },
     )
 
+    // 4
     DisposableEffect(Unit) {
         onDispose { player.release() }
     }
@@ -46,6 +50,7 @@ fun AudioAttachmentView(attachmentState: AttachmentState) {
             .background(Color.White)
     ) {
         val (iconButton, text) = createRefs()
+        // 4
         IconButton(
             onClick = {
                 playing = !playing
@@ -70,6 +75,7 @@ fun AudioAttachmentView(attachmentState: AttachmentState) {
             )
         }
         val fileName = audioAttachment.name ?: ""
+        // 5
         Text(
             text = fileName,
             fontSize = 16.sp,
