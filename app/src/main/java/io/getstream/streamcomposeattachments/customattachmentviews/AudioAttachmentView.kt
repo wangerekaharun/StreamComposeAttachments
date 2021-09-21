@@ -1,6 +1,7 @@
 package io.getstream.streamcomposeattachments.customattachmentviews
 
 import android.media.MediaPlayer
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,11 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -32,8 +29,14 @@ import io.getstream.streamcomposeattachments.utils.PlayerWrapper
 fun AudioAttachmentView(attachmentState: AttachmentState) {
     var playing by remember { mutableStateOf(false) }
     val audioAttachment = attachmentState.messageItem.message.attachments.first { it.type == "audio" }
-    val audioUri = audioAttachment.extraData["audiofile"].toString().toUri()
-    val player = PlayerWrapper(MediaPlayer.create(LocalContext.current, audioUri))
+    val player = PlayerWrapper(
+        player = MediaPlayer.create(LocalContext.current, Uri.parse(audioAttachment.url)),
+        onStop = { playing = false },
+    )
+
+    DisposableEffect(Unit) {
+        onDispose { player.release() }
+    }
 
     ConstraintLayout(
         modifier = Modifier
@@ -66,7 +69,7 @@ fun AudioAttachmentView(attachmentState: AttachmentState) {
                 contentDescription = "Play Icon",
             )
         }
-        val fileName = audioUri.lastPathSegment ?: ""
+        val fileName = audioAttachment.name ?: ""
         Text(
             text = fileName,
             fontSize = 16.sp,

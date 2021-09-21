@@ -7,6 +7,7 @@ import io.getstream.chat.android.client.models.Message
 import io.getstream.chat.android.offline.ChatDomain
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.io.File
 
 class StateViewModel : ViewModel() {
     private val _isRecording = MutableStateFlow(false)
@@ -19,7 +20,7 @@ class StateViewModel : ViewModel() {
     fun sendAttachment(channelId: String, output: String) {
         val attachment = Attachment(
             type = "audio",
-            extraData = mutableMapOf("audiofile" to output),
+            upload = File(output),
         )
         val message = Message(
             cid = channelId,

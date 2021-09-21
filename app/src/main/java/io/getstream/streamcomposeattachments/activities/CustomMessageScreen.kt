@@ -93,7 +93,7 @@ class CustomMessageScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         channelId = intent.getStringExtra(KEY_CHANNEL_ID) ?: return
         mediaRecorder = MediaRecorder()
-        output = this.getExternalFilesDir(null)?.absolutePath + "/audio.mp3"
+        output = this.getExternalFilesDir(null)?.absolutePath + "/audio-${System.currentTimeMillis() % 10000}.mp3"
 
         val defaultFactories = StreamAttachmentFactories.defaultFactories()
 
