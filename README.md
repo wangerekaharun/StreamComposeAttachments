@@ -136,11 +136,11 @@ val defaultFactories = StreamAttachmentFactories.defaultFactories()
 
 Now when you send a message with a `type` password. This is how it appears on the MessageList:
 
-![password_attachment](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/password_attachment.png)
+![password_attachment](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/password_attachment.png "Password Attachment.")
 
 Tappinn the password visibility icon, the password is shown:
 
-![password_attachment_show](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/password_attachment_show.png)
+![password_attachment_show](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/password_attachment_show.png "Password attachment show password.")
 
 This is possible because of the `showPassword` variable which makes the `OutlinedTextField` to be recomposed and the icon to change too. You can toggle in between the states easily.  Now all attachments with `type` password will be rendered with this view by default.
 
@@ -260,7 +260,7 @@ With the new Compose UI components, it's easy for you to add chat features to yo
 
 For the Audio recording functionality, you'd want to add a record icon on your message input layout  as:
 
-![custom_message_composer](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/custom_message_composer.png)
+![custom_message_composer](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/custom_message_composer.png "Custom Message Composer.")
 
 In the above image, notice there's the password icon which sends the password attachment that you've just learned. There's also a microphone icon which will have all the recording functionality.
 
@@ -465,25 +465,25 @@ This is the `CustomAudioComposer` with the following two key components:
 
 And that's all you need to have your custom messgaes screen with custom integrations. With this once you run the app, your `MessageComposer` will be as follows:
 
-![custom_message_composer](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/custom_message_composer.png)
+![custom_message_composer](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/custom_message_composer.png "Custom Message Composer.")
 
 When you tap on the microphone icon, you'll see a `Toast` with "Recording started!" message.
 
-![recording_started](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/recording_started.png)
+![recording_started](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/recording_started.png "Recording Audio.")
 
 When you tap `Stop`  the recording will stop and you audio attachment will be sent.
 
-![audio_sent](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/audio_sent.png)
+![audio_sent](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/audio_sent.png "Custom Audio attachment.")
 
 The audio attachment will be rendered with your custom factory which shows the audio name and a Play icon. When you tap play, your audio starts playing:
 
-![playing_audio](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/playing_audio.png)
+![playing_audio](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/playing_audio.png "Playing Custom Audio Attachment.")
 
 You can see the icon changes the color and shows stop icon now which on tapping will stop the audio.
 
 This is how the two custom attachment  look like:
 
-![password_audio_attachment](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/password_audio_attachment.png)
+![password_audio_attachment](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/password_audio_attachment.png "Custom Password and Audio Attachments.")
 
 Congratulations! You've just learned how to add custom attachement with files and without files. Now, go and enhance your chat application with all this amazing custom features you've learned!
 
