@@ -252,11 +252,240 @@ To explain the code above:
 5. This is an `IconButton` composable that changes state depending on the state of the player. Tapping this plays the audio and shows the stop icon. Tapping stop icon will stop the audio.
 6. This is a composable which shows the name of the file.
 
-You have the preview ready, you'll be creating a custom messages screen which has a record  button at the bottom.![custom_message_composer](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/custom_message_composer.png)
+You have the preview ready, you'll be creating a custom messages screen which has a record  button at the bottom.
 
 ## Customizing the Messages Screen
 
+With the new Compose UI components, it's easy for you to add chat features to your app and customize these componets to your needs. You'll be learning how to customize some of this components in the next few sections.
+
+For the Audio recording functionality, you'd want to add a record icon on your message input layout  as:
+
+![custom_message_composer](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/custom_message_composer.png)
+
+In the above image, notice there's the password icon which sends the password attachment that you've just learned. There's also a microphone icon which will have all the recording functionality.
+
+To have such a UI you'll begin by customizing your Messages Screen as:
+
+```kotlin
+ChatTheme(
+    attachmentFactories = customAttachmentFactories + defaultFactories
+) {
+    CustomUi { onBackPressed() }
+}
+```
+
+Here, you use the `ChatTheme` from Stream Chat SDK which provides you with all the default styling. You can also choose to use a your own custom theme if you need different styling.  You also pass you custom factories to handle the custom attachments. And lastly you set the content to a custom one. If you need the default channel messages behaviour you only need:
+
+```kotlin
+ChatTheme {
+    MessagesScreen(
+        channelId = channelId,
+        messageLimit = 30,
+        onBackPressed = { finish() }
+    )
+```
+
+Notice how you're adding the functionality with a few lines on code :] But for now let's have a look at some of the components on the `CustomUi`
+
+```kotlin
+@Composable
+    fun CustomUi(onBackPressed: () -> Unit) {
+        val isShowingAttachments = attachmentsPickerViewModel.isShowingAttachments
+        val selectedMessage = listViewModel.currentMessagesState.selectedMessage
+        val user by listViewModel.user.collectAsState()
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                bottomBar = {
+                    CustomAudioComposer()
+                },
+                content = {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        MessageListHeader(
+                            channel = listViewModel.channel,
+                            currentUser = user,
+                            isNetworkAvailable = true,
+                            messageMode = listViewModel.messageMode,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            onBackPressed = onBackPressed,
+                            onHeaderActionClick = {},
+                        )
+
+                        MessageList(
+                            modifier = Modifier
+                                .padding(it)
+                                .background(ChatTheme.colors.appBackground),
+                            viewModel = listViewModel,
+                            onThreadClick = { message ->
+                                composerViewModel.setMessageMode(Thread(message))
+                                listViewModel.openMessageThread(message)
+                            }
+                        )
+                    }
+                }
+            )
+
+            if (isShowingAttachments) {
+                AttachmentsPicker(
+                    attachmentsPickerViewModel = attachmentsPickerViewModel,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .height(350.dp),
+                    onAttachmentsSelected = { attachments ->
+                        attachmentsPickerViewModel.changeAttachmentState(false)
+                        composerViewModel.addSelectedAttachments(attachments)
+                    },
+                    onDismiss = {
+                        attachmentsPickerViewModel.changeAttachmentState(false)
+                        attachmentsPickerViewModel.dismissAttachments()
+                    }
+                )
+            }
+
+            if (selectedMessage != null) {
+                SelectedMessageOverlay(
+                    messageOptions = defaultMessageOptions(
+                        selectedMessage,
+                        user,
+                        listViewModel.isInThread
+                    ),
+                    message = selectedMessage,
+                    onMessageAction = { action ->
+                        composerViewModel.performMessageAction(action)
+                        listViewModel.performMessageAction(action)
+                    },
+                    onDismiss = { listViewModel.removeOverlay() }
+                )
+            }
+        }
+    }
+```
+
+From the code above, notice there's a `Scaffold` which is a material design layout structure that provides you an easier way to add different material components like app bar, bottom navigation and content. In the `Scaffold` you define:
+
+- `bottomBar` - This is the bottom bar with custom icons representong custom actions. By default it doesn't have this actions. You'll see the contents of `CustomAudioComposer` in a moment.
+- `content` - This has the contents of the rest of the screen. We have a `Column` with a `MessageListHeader` and a `MessageList`. `MessageListHeader` is a component that shows the back button, channel information like members online and shows an avatar of the current user. `MessageList` component shows messages of the selected channel.  This two components are higly customizable depending on what information you want to display.
+
+Next you'll dive deep in the `CustomAudioComposer` component to see how you can add custom actions to `MessageComposer`.
+
 ## Creating a Custom Message Composer
+
+`MessageComposer` is a component which allows a user to type and send messages, add and send attachments too. 
+
+```kotlin
+@Composable
+    fun CustomAudioComposer() {
+        val buttonState by stateViewModel.isRecording.collectAsState()
+        MessageComposer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            viewModel = composerViewModel,
+            // 1
+            integrations = {
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .width(35.dp)
+                        .height(35.dp)
+                        .padding(4.dp),
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Attachment,
+                            contentDescription = null,
+                            tint = ChatTheme.colors.textLowEmphasis,
+                        )
+                    },
+                    onClick = {
+                        attachmentsPickerViewModel.changeAttachmentState(true)
+                    }
+                )
+                IconButton(
+                    onClick = {
+                        sendPasswordAttachmentMessage()
+                    },
+                    modifier = Modifier
+                        .width(35.dp)
+                        .height(35.dp)
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Visibility,
+                        contentDescription = null,
+                        tint = ChatTheme.colors.textLowEmphasis,
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        if (!buttonState) {
+                            checkPermissions()
+                        } else {
+                            stopRecording()
+                        }
+                    },
+                    modifier = Modifier
+                        .width(35.dp)
+                        .height(35.dp)
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = if (buttonState) {
+                            Icons.Default.Stop
+                        } else Icons.Default.Mic,
+                        contentDescription = null,
+                        tint = if (buttonState) ChatTheme.colors.errorAccent else ChatTheme.colors.textLowEmphasis,
+                    )
+                }
+            },
+            // 2
+            input = {
+                MessageInput(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(7f)
+                        .padding(start = 8.dp),
+                    value = composerViewModel.input,
+                    attachments = composerViewModel.selectedAttachments,
+                    activeAction = composerViewModel.activeAction,
+                    onValueChange = { composerViewModel.setMessageInput(it) },
+                    onAttachmentRemoved = { composerViewModel.removeSelectedAttachment(it) },
+                )
+            }
+        )
+    }
+```
+
+This is the `CustomAudioComposer` with the following two key components:
+
+1. `integrations` - You use this to provide attachment integrations. By default there's the image, file and media capture attachments. In this custom one, there's three integrations: the default file, media capture and image attachment, then there's an `IconButton` for password integration. And lastly there's an `IconButton` for microphone which represents audio intergration. With this `IconButton`'s you provide custom actions to handle them when they're tapped. In this case it's the sending of password and audio attachments. That's all you need to customize this to have custom integrations.
+2. `input`  - This has a `MessageInput` component where user can type their messages.
+
+And that's all you need to have your custom messgaes screen with custom integrations. With this once you run the app, your `MessageComposer` will be as follows:
+
+![custom_message_composer](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/custom_message_composer.png)
+
+When you tap on the microphone icon, you'll see a `Toast` with "Recording started!" message.
+
+![recording_started](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/recording_started.png)
+
+When you tap `Stop`  the recording will stop and you audio attachment will be sent.
+
+![audio_sent](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/audio_sent.png)
+
+The audio attachment will be rendered with your custom factory which shows the audio name and a Play icon. When you tap play, your audio starts playing:
+
+![playing_audio](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/playing_audio.png)
+
+You can see the icon changes the color and shows stop icon now which on tapping will stop the audio.
+
+This is how the two custom attachment  look like:
+
+![password_audio_attachment](/Users/harun/AndroidStudioProjects/StreamComposeAttachements/images/password_audio_attachment.png)
+
+Congratulations! You've just learned how to add custom attachement with files and without files. Now, go and enhance your chat application with all this amazing custom features you've learned!
 
 ## Conclusion
 
