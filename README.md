@@ -1,7 +1,7 @@
 # Custom Attachments in Stream Compose SDK
 ## Introduction 
 
-Stream recently [announced](https://getstream.io/blog/jetpack-compose-sdk/) their Jetpack Compose UI componets which is currently in beta. This follows the announcement of the stable version of Jetpack Compose.
+Stream recently [announced](https://getstream.io/blog/jetpack-compose-sdk/) their Jetpack Compose UI components which is currently in beta. This follows the announcement of the stable version of Jetpack Compose.
 
 In this tutorial, you'll learn
 
@@ -14,17 +14,17 @@ In this tutorial, you'll learn
 
 Stream Chat SDK supports several attachments by default for example images, URLs, gifs and videos. With the XML UI components, you could create a custom `AttachmentViewFactory` class that would be used to render your attachment preview. The good news is that even with the Compose UI components, you still have this ability :]
 
-First, you'll need to underdstand what is an `Attachment Factory'
+First, you'll need to understand what is an `Attachment Factory'
 
 ## Introduction to `AttachmentFactory`
 
-This is a class that allows you to build and render your attachments to the list of messages. As earlier mentioned, Stream Chat SDK provides several default factories to transfom image, file and link attachments.   You can get all the default factories using:
+This is a class that allows you to build and render your attachments to the list of messages. As earlier mentioned, Stream Chat SDK provides several default factories to transform images, files and link attachments.   You can get all the default factories using:
 
 ```kotlin
 val defaultFactories = StreamAttachmentFactories.defaultFactories()
 ```
 
-If your app needs other attachments other than the ones provide by the default factories, you'll need to create you own custom one. This is what you'll be doing in the subsequent sections.
+If your app needs attachments other than the ones provided by the default factories, you'll need to create your custom ones. This is what you'll be doing in the subsequent sections.
 
 ## Creating a Custom `AttachmentFactory`
 
@@ -33,7 +33,7 @@ To create a custom `AttachmentFactory`, you'll need:
 - A view to show the attachment. In this case, it will be a composable.
 - To create a new `AttachmentFactory`. Here you supply a predicate that checks for your custom attachment and specifies how to render the attachment content.
 
-Before creating a custom `AttachmentFactory`, first you'll need to create an `Attachment` object.
+Before creating a custom `AttachmentFactory`, first, you'll need to create an `Attachment` object.
 
 ## Custom Password Attachment
 
@@ -96,7 +96,7 @@ fun PasswordAttachmentView(attachmentState: AttachmentState) {
 Here's what the code above does:
 
 1. Annotating the function using the `@Composable`  annotation. This lets you build the component's UI  with Compose as opposed to the previous way of using XML.
-2. The function takes `AttachmentState`  as an argument. `AttachmentState` is a class that handles the state of the attachment. It has a `MessageItem` , `Modifier` and `onLongItemClick` handler. The `MessageItem` contains all the information about a particular attachment. You use the `Modifier` for things like the component size, padding, background and etc.
+2. The function takes `AttachmentState`  as an argument. `AttachmentState` is a class that handles the state of the attachment. It has a `MessageItem` , `Modifier` and `onLongItemClick` handler. The `MessageItem` contains all the information about a particular attachment. You use the `Modifier` for things like the component size, padding, background, etc.
 3. This stores `showPassword` value in memory of the composable by using the `remember` composable. This value triggers a recomposition of the composable when the value changes.
 4. Looks for attachments whose `type` is password from the `AttachmentState`.
 5. This is composable for handling user inputs.  In this scenario, you're using it to display your password attachment. You set the value of the `OutlinedTextField` by getting the `extraData` that was passed to the attachment. Notice that the `visualTransformation` and `trailingIcon` are dependent on the value of `showPassword`. This helps in toggling the password visibility.
@@ -117,9 +117,9 @@ val customAttachmentFactories: List<AttachmentFactory> = listOf(
 )
 ```
 
-This is a list attachment factories. Each `AttachmentFactory` has the following two properties:
+This is a list of attachment factories. Each `AttachmentFactory` has the following two properties:
 
-- `canHandle` - a lambda function which accepts a list of attachments. You also specify what type of attachments the factory can handle. In this case, it's the attachments with `type` password.
+- `canHandle` - a lambda function that accepts a list of attachments. You also specify what type of attachments the factory can handle. In this case, it's the attachments with `type` password.
 - `content` - This specifies the composable that renders your password attachment content. This uses the `PasswordAttachmentView` composable that you created earlier.
 
 With this done, the only remaining thing to do is to add this custom factory to the `ChatTheme`. To do this override the `attachmentFactories` in your `ChatTheme` wrapper:
@@ -165,7 +165,7 @@ val message = Message(
 )
 ```
 
-For attachments with files, you have to use the `upload` property. It uploads your attachment. You can access the attachment using the `url` property of the attachment. You're using the `output` from `MediaRecorder`.The functionalty of this can be found on the sample project.
+For attachments with files, you have to use the `upload` property. It uploads your attachment. You can access the attachment using the `url` property of the attachment. You're using the `output` from `MediaRecorder`.The functionality of this can be found in the sample project.
 
 You have your `Attachment` object ready, next,  you'll learn how to create a preview of the audio attachment content.
 
@@ -362,7 +362,7 @@ You're adding the functionality with a few lines on code :] But for now, you'll 
     }
 ```
 
-Some of the code from the `CustomMessageScreen` is ommitted for brevity purposes. To explain the key componets in the `CustomUi` composable, first, you're defining the parent layout which are `Box` and `Scaffold`. `Box` layout allows you to show things on top of each other. `Scaffold` is a material design layout structure that provides you an easier way to add different material components like app bar, bottom navigation and content. In the `Scaffold` you define:
+Some of the code from the `CustomMessageScreen` is omitted for brevity purposes. To explain the key components in the `CustomUi` composable, first, you're defining the parent layout which is `Box` and `Scaffold`. `Box` layout allows you to show things on top of each other. `Scaffold` is a material design layout structure that provides you an easier way to add different material components like app bar, bottom navigation and content. In the `Scaffold` you define:
 
 - `bottomBar` - This is the bottom bar with a `MessageComposer` for sending messages and attachments. By default, it only has the attachment icon. You'll be adding other icons and their actions too. You'll see the contents of `CustomAudioComposer` in a moment.
 - `content` - This has the contents of the rest of the screen. You have a `Column` with a `MessageListHeader` and a `MessageList`. `MessageListHeader` shows the back button, channels information like members online and shows an avatar of the current user. `MessageList` component shows messages of the selected channel.  These two components are customizable depending on what information you want to display.
