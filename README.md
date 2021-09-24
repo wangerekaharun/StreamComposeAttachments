@@ -22,14 +22,14 @@ This is a class that allows you to build and render your attachments to the list
 
 ## Examples of Default `AttachmentFactory`
 
-As earlier mentioned, the Stream Chat SDK provides you with several factories to handle image, video, URL and GIF attachments.  
+As earlier mentioned, Stream Chat SDK provides several factories to handle image, video, URL and GIF attachments.  
 
 ## Creating Your Attachment Factory
 
 For you to create your attachment factory, you'll need:
 
-- A view to show the attachment
-- Have a new `AttachmentFactory` that checks for your custom attachment and specifies how to render the attachment.
+- A view to show the attachment.
+- To create a new `AttachmentFactory`. It checks for your custom attachment and specifies how to render the attachment.
 
 You'll be learning how to create this in the next section.
 
@@ -48,7 +48,7 @@ val message = Message(
 )
 ```
 
-This is a message with an attachment that contains a password. The password is passed through the `extraData` attribute. By default, the SDK doesn't know how to render this attachment.
+This is a message with an attachment that contains a password. You pass the password through the `extraData` attribute. By default, the SDK doesn't know how to render this attachment.
 
 To render this, first create a view that shows your password. In this case it'll be a composable. Here's how the code looks like:
 
@@ -93,13 +93,13 @@ fun PasswordAttachmentView(attachmentState: AttachmentState) {
 
 Here's what the code above does:
 
-1. Annotating the function using the `@Composable`  annotation. This lets you build the component's UI programmatically as opposed to the previous way of using XML.
+1. Annotating the function using the `@Composable`  annotation. This lets you build the component's UI as opposed to the previous way of using XML.
 2. The function takes `AttachmentState`  as an argument. `AttachmentState` is a class that handles the state of the attachment. It has a `MessageItem` which contains all the information about a particular attachment.
-3. This stores the `showPassword` in memory of the composable by using the `remember` composable. This value is observable which triggers a recomposition of the composable when the value changes.
+3. This stores `showPassword` in memory of the composable by using the `remember` composable. This value triggers a recomposition of the composable when the value changes.
 4. Looks for messages whose `type` is password from the `AttachmentState`.
 5. This is composable for inputs.  Here, the value of the `OutlinedTextField` is set by getting the `extraData` that was passed to the attachment. Notice that the `visualTransformation` and `trailingIcon` are dependent on the value of `showPassword`. This helps in toggling the password visibility.
 
-Now that you already have the view that is supposed to render your attachment, next is creating the custom `AttachmentFactory` 
+Now that you already have the view that will render your attachment, next is creating the custom `AttachmentFactory` 
 
 ## Creating Custom Password AttachmentFactory
 
@@ -118,7 +118,7 @@ val customAttachmentFactories: List<AttachmentFactory> = listOf(
 This is a list AttachmentFactories. Each `AttachmentFactory` has the following two properties:
 
 - `canHandle` - This is where you specify what type of attachments the factory can handle. In this case, it's the attachments with `type` password.
-- `content` - This specifies the view that renders your custom attachment. This uses the `PasswordAttachmentView` composable that you've just seen earlier.
+- `content` - This specifies the view that renders your custom attachment. This uses the `PasswordAttachmentView` composable that you've seen earlier.
 
 With this done, the only remaining thing to do is to add this custom factory to the `ChatTheme`. To do this override the `attachmentFactories`:
 
@@ -138,13 +138,13 @@ Now when you send a message with a `type` password. This is how it appears on th
 
 ![password_attachment](images/password_attachment.png "Password Attachment.")
 
-Tapping the password visibility icon, the password is shown:
+Tapping the password visibility icon, you'll see the password value:
 
 ![password_attachment_show](images/password_attachment_show.png "Password attachment show password.")
 
-This is possible because of the `showPassword` variable which makes the `OutlinedTextField` to be recomposed and the icon to change too. You can toggle in between the states easily.  Now all attachments with `type` password will be rendered with this view by default.
+This is possible because of the `showPassword` variable which recomposes the `OutlinedTextField` and the icon to changes too. You can toggle the states easily.  This view will render all attachments with `type` password by default.
 
-You've seen how to send attachments that don't have files. In the next section, you'll be learning how to send record voice notes and send them as custom attachments too.
+You've seen how to send attachments that don't have files. In the next section, you'll be learning how to record audio and send them as custom attachments too.
 
 ## Custom Audio Attachment
 
@@ -167,13 +167,13 @@ val message = Message(
 )
 ```
 
-For attachments with files, you have to use the `upload` property. Which uploads your attachment and you can access the attachment using the `url` property of the attachment.
+For attachments with files, you have to use the `upload` property. It uploads your attachment. You can access the attachment using the `url` property of the attachment.
 
-Now that your attachment is ready to be sent, you'll learn how to create a preview of the same next.
+Now that you have your attachment, next,  you'll learn how to create a preview of the attachment next.
 
 ## Previewing Custom Attachments
 
-For audio, you'll need a UI with a play functionality so that you can listen to the audio that has been sent. For playing you'll use the android `MediaPlayer` for playing the audio file.
+For audio, you'll need a UI with a play functionality so that you can listen to the audio that has been sent. For playing you'll use the Android `MediaPlayer` for playing the audio file.
 
 This is how you composable will be:
 
@@ -247,7 +247,7 @@ To explain the code above:
 
 1. This is another state variable that tracks the playing state. It helps in toggling between the play and stop icons.
 2. Gets the audio attachment from `AttachmentState`.
-3. You're creating a `PlayerWrapper` instance which has utility methods for playing, stopping and releasing the `MediaPlayer`. You also pass the audio file as URI.
+3. You're creating a `PlayerWrapper` instance. It has utility methods for playing, stopping and releasing the `MediaPlayer`. You also pass the audio file as URI.
 4. This calls the `release()` function from `PlayerWrapper` class to clean up the  `MediaPlayer`.
 5. This is an `IconButton` composable that changes state depending on the state of the player. Tapping this plays the audio and shows the stop icon. Tapping the stop icon will stop the audio.
 6. This is a composable which shows the name of the file.
@@ -262,7 +262,7 @@ For the Audio recording functionality, you'd want to add a record icon on your m
 
 ![custom_message_composer](images/custom_message_composer.png "Custom Message Composer.")
 
-In the above image, notice there's the password icon that sends the password attachment that you've just learned. There's also a microphone icon that will have all the recording functionality.
+In the above image, notice there's the password icon that sends the password attachment that you've learned. There's also a microphone icon that will have all the recording functionality.
 
 To have such a UI you'll begin by customizing your Messages Screen as:
 
@@ -285,7 +285,7 @@ ChatTheme {
     )
 ```
 
-Notice how you're adding the functionality with a few lines on code :] But for now, let's have a look at some of the components on the `CustomUi`
+You're adding the functionality with a few lines on code :] But for now, let's have a look at some of the components on the `CustomUi`
 
 ```kotlin
 @Composable
@@ -364,16 +364,16 @@ Notice how you're adding the functionality with a few lines on code :] But for n
     }
 ```
 
-From the code above, notice there's a `Scaffold` which is a material design layout structure that provides you an easier way to add different material components like app bar, bottom navigation and content. In the `Scaffold` you define:
+From the code above, notice there's a `Scaffold`. This is a material design layout structure that provides you an easier way to add different material components like app bar, bottom navigation and content. In the `Scaffold` you define:
 
 - `bottomBar` - This is the bottom bar with custom icons representing custom actions. By default, it doesn't have these actions. You'll see the contents of `CustomAudioComposer` in a moment.
-- `content` - This has the contents of the rest of the screen. We have a `Column` with a `MessageListHeader` and a `MessageList`. `MessageListHeader` is a component that shows the back button, channels information like members online and shows an avatar of the current user. `MessageList` component shows messages of the selected channel.  These two components are highly customizable depending on what information you want to display.
+- `content` - This has the contents of the rest of the screen. We have a `Column` with a `MessageListHeader` and a `MessageList`. `MessageListHeader` shows the back button, channels information like members online and shows an avatar of the current user. `MessageList` component shows messages of the selected channel.  These two components are customizable depending on what information you want to display.
 
 Next, you'll dive deep into the `CustomAudioComposer` component to see how you can add custom actions to `MessageComposer`.
 
 ## Creating a Custom Message Composer
 
-`MessageComposer` is a component that allows a user to type and send messages, add and send attachments too. 
+`MessageComposer` allows a user to type and send messages, add and send attachments too. 
 
 ```kotlin
 @Composable
@@ -460,7 +460,7 @@ Next, you'll dive deep into the `CustomAudioComposer` component to see how you c
 
 This is the `CustomAudioComposer` with the following two key components:
 
-1. `integrations` - You use this to provide attachment integrations. By default, there are the image, file and media capture attachments. In this custom one, there are three integrations: the default file, media capture and image attachment, then there's an `IconButton` for password integration. And lastly, there's an `IconButton` for microphone which represents audio integration. With these `IconButton`'s you provide custom actions to handle them when they're tapped. In this case, it's the sending of password and audio attachments. That's all you need to customize this to have custom integrations.
+1. `integrations` - You use this to provide attachment integrations. By default, there are the image, file and media capture attachments. In this custom one, there are three integrations: the default one, then there's an `IconButton` for password integration. And lastly, there's an `IconButton` for a microphone which represents audio integration. With these `IconButton`'s you provide custom actions to handle them when they're tapped. In this case, it's the sending of passwords and audio attachments. That's all you need to customize this to have custom integrations.
 2. `input`  - This has a `MessageInput` component where user can type their messages.
 
 And that's all you need to have your custom messages screen with custom integrations. With this, once you run the app, your `MessageComposer` will be as follows:
@@ -471,11 +471,11 @@ When you tap on the microphone icon, you'll see a `Toast` with "Recording starte
 
 ![recording_started](images/recording_started.png "Recording Audio.")
 
-When you tap `Stop`  the recording will stop and your audio attachment will be sent.
+When you tap `Stop`  the recording will stop and uploading of your audio file starts.
 
 ![audio_sent](images/audio_sent.png "Custom Audio attachment.")
 
-The audio attachment will be rendered with your custom factory which shows the audio name and a Play icon. When you tap play, your audio starts playing:
+The custom factory will render your audio attachment which shows the audio name and a Play icon. When you tap play, your audio starts playing:
 
 ![playing_audio](images/playing_audio.png "Playing Custom Audio Attachment.")
 
@@ -485,7 +485,7 @@ This is how the two custom attachments look like:
 
 ![password_audio_attachment](images/password_audio_attachment.png "Custom Password and Audio Attachments.")
 
-Congratulations! You've just learned how to add custom attachments with files and without files. Now, go and enhance your chat application with all these amazing custom features you've learned!
+Congratulations! You've learned how to add custom attachments with files and without files. Now, you can enhance your chat application with all these amazing custom features you've learned!
 
 ## Conclusion
 
@@ -493,7 +493,7 @@ You've seen how easy it is to add custom attachments to Jetpack Compose UI compo
 
 The full sample project with examples in this tutorial [on GitHub](https://github.com/wangerekaharun/StreamComposeAttachments)
 
-You can also go through the [Sending Custom Attachments]() sections that explain more about custom attachments.
+Check the [Sending Custom Attachments]() sections that explain more about custom attachments.
 
-The [Compose SDK](https://getstream.io/chat/docs/sdk/android/compose/overview/) is still in beta so in case you have any feedback on using the SDK! You can reach the team easily [on Twitter](https://twitter.com/getstream_io) and [on GitHub](https://github.com/GetStream/stream-chat-android).
+The [Compose SDK](https://getstream.io/chat/docs/sdk/android/compose/overview/) is still in beta. In case you have any feedback on using the SDK, reach the team [on Twitter](https://twitter.com/getstream_io) and [on GitHub](https://github.com/GetStream/stream-chat-android).
 
